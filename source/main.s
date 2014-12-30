@@ -32,6 +32,7 @@ mov r1,#1
 lsl r1,#18
 str r1,[r0,#4]
 
+flash$:
 /*
 * Turn pin 16 off, turning LED on
 * Moves value 1 into register1 and shifts by 16 places to represent pin 16
@@ -42,8 +43,18 @@ mov r1,#1
 lsl r1,#16
 str r1,[r0,#40]
 
-/*
-* Infinite Loop
-*/
-loop$:
-b loop$
+mov r2,#0x3F0000
+wait1$:
+sub r2,#1
+cmp r2,#0
+bne wait1$
+
+str r1,[r0,#28]
+
+mov r2,#0x3F0000
+wait2$:
+sub r2,#1
+cmp r2,#0
+bne wait2$
+
+b flash$
