@@ -16,45 +16,79 @@
 .globl _start
 _start:
 
-/*
-* Loads base GPIO address as physical address into register0
+b main
+
+/* 
+* Tells the assembler to put this code with the rest.
 */
-ldr r0,=0x20200000
+.section .text
 
 /*
-* Enable output to pin 16
-* Moves value 1 into register1 and shifts by 18 places to make a value which
-* represents enabling output to pin 16
-* Stores value of register1 into memory address calculated by adding 4 to
-* value held in register0 which represents second set of 10 GPIO pins
+* Main method
 */
-mov r1,#1
-lsl r1,#18
-str r1,[r0,#4]
+main:
+	mov sp,#0x8000
 
-flash$:
-/*
-* Turn pin 16 off, turning LED on
-* Moves value 1 into register1 and shifts by 16 places to represent pin 16
-* Store value of register1 into memory address calculated by adding 40 to value
-* held in register0 which is address to turn pin off
-*/
-mov r1,#1
-lsl r1,#16
-str r1,[r0,#40]
+	/* 
+	* Use SetGpioFunction function from gpio.s to set the function
+	* of GPIO port 16 (OK LED) to 001 (binary)
+	*/
+	pinNum .req r0
+	pinFunc .req r1
+	mov pinNum,#16
+	mov pinFunc,#1
+	bl SetGpioFunction
+	.unreq pinNum
+	.unreq pinFunc
 
-mov r2,#0x3F0000
-wait1$:
-sub r2,#1
-cmp r2,#0
-bne wait1$
+	/*
+	* Use SetGpio function from gpio.s to set GPIO 16 to low,
+	* causing the LED to turn on.
+	*/
+	loop$:
+		pinNum .req r0
+		pinVal .req r1
+		mov pinNum,#16
+		mov pinVal,#0
+		bl SetGpio
+		.unreq pinNum
+		.unreq pinVal
 
-str r1,[r0,#28]
+		/*
+		* Decrement down from 3F0000 to 0 to act as a delay
+		*/
+		decr .req r0
+		mov decr,#0x3F0000
+		wait1$: 
+			sub decr,#1
+			teq decr,#0
+			bne wait1$
+		.unreq decr
 
-mov r2,#0x3F0000
-wait2$:
-sub r2,#1
-cmp r2,#0
-bne wait2$
+		/*
+		* Use SetGpio function from gpio.s to set GPIO 16 to high,
+		* causing the LED to turn on.
+		*/
+		pinNum .req r0
+		pinVal .req r1
+		mov pinNum,#16
+		mov pinVal,#1
+		bl SetGpio
+		.unreq pinNum
+		.unreq pinVal
 
-b flash$
+		/*
+		* Delay a second time
+		*/
+		decr .req r0
+		mov decr,#0x3F0000
+		wait2$:
+			sub decr,#1
+			teq decr,#0
+			bne wait2$
+		.unreq decr
+
+	/*
+	* Loop over the code continuously
+	*/
+	b loop$
