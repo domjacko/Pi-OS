@@ -1,21 +1,32 @@
-/*******************************************************************************
-* systemTimer.s
-* Contains all functions related to the Timer
-* Dom Jackson's Pi OS
-* @domjacko
-*******************************************************************************/
+/******************************************************************************
+*	systemTimer.s
+*	 by Alex Chadwick
+*
+*	A sample assembly code implementation of the OK04 operating system.
+*	See main.s for details.
+*
+*	systemTime.s contains the code that interacts with the system timer.
+******************************************************************************/
+
 /*
-* Function to get Timer Address and store in physical memory
-* address
+* The system timer runs at 1MHz, and just counts always. Thus we can deduce
+* timings by measuring the difference between two readings.
+*/
+
+/*
+* GetSystemTimerBase returns the base address of the System Timer region as a
+* physical address in register r0.
+* C++ Signature: void* GetSystemTimerBase()
 */
 .globl GetSystemTimerBase
-GetSystemTimerBase:
+GetSystemTimerBase: 
 	ldr r0,=0x20003000
 	mov pc,lr
 
 /*
-* Use the GetSystemTimerBase to store the current 8 bit counter
-* into two registers
+* GetTimeStamp gets the current timestamp of the system timer, and returns it
+* in registers r0 and r1, with r1 being the most significant 32 bits.
+* C++ Signature: u64 GetTimeStamp()
 */
 .globl GetTimeStamp
 GetTimeStamp:
@@ -25,12 +36,14 @@ GetTimeStamp:
 	pop {pc}
 
 /*
-* Wait function which takes a time in milliseconds to wait for
+* Wait waits at least a specified number of microseconds before returning.
+* The duration to wait is given in r0.
+* C++ Signature: void Wait(u32 delayInMicroSeconds)
 */
 .globl Wait
 Wait:
 	delay .req r2
-	mov delay,r0
+	mov delay,r0	
 	push {lr}
 	bl GetTimeStamp
 	start .req r3
@@ -43,7 +56,7 @@ Wait:
 		cmp elapsed,delay
 		.unreq elapsed
 		bls loop$
-
+		
 	.unreq delay
 	.unreq start
 	pop {pc}
