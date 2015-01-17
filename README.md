@@ -9,4 +9,4 @@ To use this OS, you will need to compile the code using the Yagarto GNU toolchai
 
 Credit goes to Alex Chadwick for the tutorials and the template code.
 
-## Current Status: OK LED flashes
+Current status: OK LED flashes continuously
