@@ -27,72 +27,68 @@ b main
 * Main method
 */
 main:
+	/*
+	* Set the stack point
+	*/
 	mov sp,#0x8000
 
-	/* 
-	* Use SetGpioFunction function from gpio.s to set the function
-	* of GPIO port 16 (OK LED) to 001 (binary)
+	/*
+	* Create frame buffer of width 1024, height 768 and bit depth 16
 	*/
-	pinNum .req r0
-	pinFunc .req r1
-	mov pinNum,#16
-	mov pinFunc,#1
+	mov r0,#1024
+	mov r1,#768
+	mov r2,#16
+	bl InitialiseFrameBuffer
+
+	/*
+	* Check that GPU returned a 0 from the mailbox to confirm a framebuffer has
+	* been created. If this is the case, turn OK LED to show error.
+	*/
+	teq r0,#0
+	bne noError$
+
+	mov r0,#16
+	mov r1,#1
 	bl SetGpioFunction
-	.unreq pinNum
-	.unreq pinFunc
+	mov r0,#16
+	mov r1,#0
+	bl SetGpio
+
+	error$:
+	b error$
+
+	noError$:
+	fbInfoAddr .req r4
+	mov fbInfoAddr,r0
 
 	/*
-	* Load data pattern into r4 and 0 into r5 which will act as our
-	* sequence position to keep track of how much pattern we have displayed
+	* Draw pixels along the row and down the column using three loops
+	* drawRow loops round each row and draw pixel loops along the pixels
+	* in the row. Render renders the whole screen.
 	*/
-	ptrn .req r4
-	ldr ptrn,=pattern
-	ldr ptrn,[ptrn]
-	seq .req r5
-	mov seq,#0
+	render$:
+		fbAddr .req r3
+		ldr fbAddr,[fbInfoAddr,#32]
 
-	/*
-	* Use SetGpio function from gpio.s to set GPIO 16 to low (on) if the
-	* pattern is a 0 and high (off) if it is a non-zero
-	*/
-	loop$:
-		pinNum .req r0
-		pinVal .req r1
-		mov pinNum,#16
-		mov pinVal,#1
-		lsl pinVal,seq
-		and pinVal,ptrn
-		bl SetGpio
-		.unreq pinNum
-		.unreq pinVal
+		colour .req r0
+		y .req r1
+		mov y,#768
+		drawRow$:
+			x .req r2
+			mov x,#1024
+			drawPixel$:
+				strh colour,[fbAddr]
+				add fbAddr,#2
+				sub x,#1
+				teq x,#0
+				bne drawPixel$
 
-		/*
-		* Use Wait function to wait for 100000 milliseconds
-		*/
-		ldr r0,=250000
-		bl Wait
+			sub y,#1
+			add colour,#1
+			teq y,#0
+			bne drawRow$
 
-		/*
-		* Increment sequence by 1. If sequence gets to 32 bits,
-		* AND with 11111 to reset it back to 0
-		*/
-		add seq,#1
-		and seq,#0b11111
-		/* 
-		* Possible less efficient way
-		*   cmp seq,#0b100000
-		*   mov seq,#0
-		*/
+		b render$
 
-	/*
-	* Loop over the code forevermore
-	*/
-	b loop$
-
-/*
-* Store the data we supply in the data section of the kernel image
-*/
-.section .data
-.align 2
-pattern:
-.int 0b11111111101010100010001000101010
+	.unreq fbAddr
+	.unreq fbInfoAddr

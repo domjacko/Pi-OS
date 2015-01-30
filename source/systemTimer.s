@@ -4,9 +4,9 @@
 * Dom Jackson's Pi OS
 * @domjacko
 *******************************************************************************/
+
 /*
 * Function to get Timer Address and store in physical memory
-* address
 */
 .globl GetSystemTimerBase
 GetSystemTimerBase:

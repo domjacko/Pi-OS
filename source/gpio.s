@@ -4,6 +4,7 @@
 * Dom Jackson's Pi OS
 * @domjacko
 *******************************************************************************/
+
 /*
 * Sets function as globally accessible to everything
 */
@@ -40,8 +41,7 @@ SetGpioFunction:
 
 	/*
 	* Push value of lr onto stack to preserve it
-	* Move value of r0 into r2 and then branches to GetGpioAddress
-	* updating lr to the 
+	* Move value of r0 into r2 and then branch to GetGpioAddress
 	*/
 	push {lr}
 	mov r2,r0
@@ -60,7 +60,7 @@ SetGpioFunction:
 
 	/*
 	* Because multiplication is slow and we are simply multiplying by 3, it
-	* is quicker to multiply my 2 and then add one of itself.
+	* is quicker to multiply by 2 and then add one of itself.
 	* Shift value in r1 by value in r2 which is now 3 times larger because each pin
 	* is three bits each. 
 	*/
@@ -119,7 +119,7 @@ SetGpio:
 	.unreq pinNum
 
 	/*
-	* If the vale is 0, we turn th pin off by storing setBit in memory
+	* If the value is 0, we turn th pin off by storing setBit in memory
 	* location calculated by adding 40 to GPIO address. Else, we turn
 	* pin on by storing setBit in memory location calculated by adding
 	* 28 to GPIO address.
