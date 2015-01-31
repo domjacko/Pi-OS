@@ -9,4 +9,6 @@ To use this OS, you will need to compile the code using the Yagarto GNU toolchai
 
 Credit goes to Alex Chadwick for the tutorials and the template code.
 
-Current status: OK LED flashes for a sequence according to morse code data
+Current status: Contents of 'cmdline' Linux Boot tag drawn to screen
+
+I have left some older 'main.s' files in the repo for you to try if you wish. Simply pick the one you want and rename it to 'main.s' and remove the others. There's one that will flash a given morse code signal, one that will print some funky coloured lines to a screen, and one that prints out the contents on the 'cmdline' Linux Boot tag.
