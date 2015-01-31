@@ -9,20 +9,20 @@
 .align 4
 .globl FrameBufferInfo 
 FrameBufferInfo:
-.int 1024 /* #0 Physical Width */
-.int 768 /* #4 Physical Height */
-.int 1024 /* #8 Virtual Width */
-.int 768 /* #12 Virtual Height */
-.int 0 /* #16 GPU - Pitch */
-.int 16 /* #20 Bit Depth */
-.int 0 /* #24 X */
-.int 0 /* #28 Y */
-.int 0 /* #32 GPU - Pointer */
-.int 0 /* #36 GPU - Size */
+	.int 1024 /* #0 Physical Width */
+	.int 768 /* #4 Physical Height */
+	.int 1024 /* #8 Virtual Width */
+	.int 768 /* #12 Virtual Height */
+	.int 0 /* #16 GPU - Pitch */
+	.int 16 /* #20 Bit Depth */
+	.int 0 /* #24 X */
+	.int 0 /* #28 Y */
+	.int 0 /* #32 GPU - Pointer */
+	.int 0 /* #36 GPU - Size */
 
 .section .text
-.globl IntitialiseFrameBuffer
-IntitialiseFrameBuffer:
+.globl InitialiseFrameBuffer
+InitialiseFrameBuffer:
 	/*
 	* Validates that width and height are less than or equal to 4096
 	* and the bit depth is less than or equal to 32 bits.
@@ -53,18 +53,19 @@ IntitialiseFrameBuffer:
 	.unreq bitDepth
 
 	/*
-	* Use MailboxWrite method to write message to mailbox 1
+	* Use MailBoxWrite method to write message to mailbox 1
 	*/
 	mov r0,fbInfoAddr
-	add r0,#0x40000000 mov r1,#1
-	bl MailboxWrite
+	add r0,#0x40000000
+	mov r1,#1
+	bl MailBoxWrite
 
 	/*
-	* We send the channel (1) we want to read from to the MailboxRead function
+	* We send the channel (1) we want to read from to the MailBoxRead function
 	* and then check if the message it returns is a 0.
 	*/
 	mov r0,#1
-	bl MailboxRead
+	bl MailBoxRead
 	teq result,#0
 	movne result,#0
 	popne {r4,pc}
@@ -75,4 +76,4 @@ IntitialiseFrameBuffer:
 	mov result,fbInfoAddr
 	pop {r4,pc}
 	.unreq result
-	.unreq fbInfoAdd
+	.unreq fbInfoAddr

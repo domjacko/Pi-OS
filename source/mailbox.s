@@ -8,9 +8,9 @@
 /*
 * Function to get address of MailBox and store in physical memory
 */
-.globl GetMailboxBase
-GetMailboxBase:
-	ldr r0,=2000B880
+.globl GetMailBoxBase
+GetMailBoxBase:
+	ldr r0,=0x2000B880
 	mov pc,lr
 
 /*
@@ -23,12 +23,12 @@ MailBoxRead:
 	movhi pc,lr
 
 	/*
-	* Validate correct mailbox channel in r0 and get Mailbox Address
+	* Validate correct mailbox channel in r0 and get MailBox Address
 	*/
 	channel .req r1
 	mov channel,r0
-	push{lr}
-	bl GetMailboxBase
+	push {lr}
+	bl GetMailBoxBase
 	mailbox .req r0
 
 	rightmail$:
@@ -69,7 +69,7 @@ MailBoxRead:
 * 1111
 */
 .globl MailBoxWrite
-MailBoxWrite.:
+MailBoxWrite:
 	tst r0,#0b1111
 	movne pc,lr
 	cmp r1,#15
@@ -81,8 +81,8 @@ MailBoxWrite.:
 	channel .req r1
 	value .req r2
 	mov value,r0
-	push{lr}
-	bl GetMailboxBase
+	push {lr}
+	bl GetMailBoxBase
 	mailbox .req r0
 
 	/*
