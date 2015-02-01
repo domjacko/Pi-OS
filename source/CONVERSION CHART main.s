@@ -66,28 +66,41 @@ main:
 	*/
 	bl SetGraphicsAddress
 
-	bl UsbInitialise
 	mov r4,#0
-	mov r6,#0
 
-	loopKeyboard$:
-		bl KeyboardUpdate
-		bl KeyboardGetChar
+	loop$:
+		ldr r0,=format
+		mov r1,#formatEnd-format
+		ldr r2,=formatEnd
+		lsr r3,r4,#4
+		push {r3}
+		push {r3}
+		push {r3}
+		push {r3}
+		bl StringFormat
+		add sp,#16
 
-		teq r0,#0
-		beq loopKeyboard$
+		mov r1,r0
+		ldr r0,=formatEnd
+		mov r2,#0
+		mov r3,r4
 
-		mov r1,r4
-		mov r2,r6
-		bl DrawCharacter
+		cmp r3,#768-16
+		subhi r3,#768
+		addhi r2,#256
+		cmp r3,#768-16
+		subhi r3,#768
+		addhi r2,#256
+		cmp r3,#768-16
+		subhi r3,#768
+		addhi r2,#256
 
-		add r4,r0
-		
-		teq r4,#1024
-		addeq r6,r1
-		moveq r4,#0
+		bl DrawString
 
-		teq r6,#768
-		moveq r6,#0
+		add r4,#16
+		b loop$
 
-		bl loopKeyboard$
+.section .data
+format:
+.ascii "%d=0b%b=0x%x=0%o='%c'"
+formatEnd:
