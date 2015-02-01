@@ -32,7 +32,7 @@ SetForeColour:
 	mov pc,lr
 
 /*
-* Stores the address of where to draw to
+* Stores the address of where to draw to in the frame buffer
 */
 .globl SetGraphicsAddress
 SetGraphicsAddress:
@@ -41,7 +41,7 @@ SetGraphicsAddress:
 	mov pc,lr
 
 /*
-* Draw particular pixel given it's x and y coordinates
+* Draw particular pixel given it's x and y coordinates in r0 and r1
 */
 .globl DrawPixel
 DrawPixel:
@@ -67,7 +67,7 @@ DrawPixel:
 	width .req r3
 	ldr width,[addr,#0]
 	sub width,#1
-	cmp px, width
+	cmp px,width
 	movhi pc,lr
 
 	/*
@@ -169,7 +169,7 @@ DrawLine:
 .globl DrawCharacter
 DrawCharacter:
 	/*
-	* Check is character is less than 127
+	* Check if character is less than 127
 	*/
 	cmp r0,#127
 	movhi r0,#0
@@ -245,20 +245,21 @@ DrawCharacter:
 */
 .globl DrawString
 DrawString:
-	push {r4,r5,r6,r7,r8,lr}
 	x .req r4
 	y .req r5
 	x0 .req r6
 	string .req r7
 	length .req r8
 	char .req r9
+	
+	push {r4,r5,r6,r7,r8,r9,lr}
 
 	mov string,r0
-	mov length,r1
 	mov x,r2
-	mov y,r3
 	mov x0,x
-
+	mov y,r3
+	mov length,r1
+	
 	stringLoop$:
 		subs length,#1 /* Subtracts one number from the other and checks if result is 0 */
 		blt stringLoopEnd$

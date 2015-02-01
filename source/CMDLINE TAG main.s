@@ -66,41 +66,20 @@ main:
 	*/
 	bl SetGraphicsAddress
 
-	mov r4,#0
+	/*
+	* Find tag 9 (cmdline) and then draw string by giving length, data and coords
+	* to DrawString function
+	*/
+	mov r0,#9
+	bl FindTag
+
+	ldr r1,[r0] /* Load address of 9th tag */
+	lsl r1,#2   
+	sub r1,#8   /* Length of cmdline string */
+	add r0,#8
+	mov r2,#0 /* Coordinates of X and Y */
+	mov r3,#0
+	bl DrawString
 
 	loop$:
-		ldr r0,=format
-		mov r1,#formatEnd-format
-		ldr r2,=formatEnd
-		lsr r3,r4,#4
-		push {r3}
-		push {r3}
-		push {r3}
-		push {r3}
-		bl StringFormat
-		add sp,#16
-
-		mov r1,r0
-		ldr r0,=formatEnd
-		mov r2,#0
-		mov r3,r4
-
-		cmp r3,#768-16
-		subhi r3,#768
-		addhi r2,#256
-		cmp r3,#768-16
-		subhi r3,#768
-		addhi r2,#256
-		cmp r3,#768-16
-		subhi r3,#768
-		addhi r2,#256
-
-		bl DrawString
-
-		add r4,#16
 		b loop$
-
-.section .data
-format:
-.ascii "%d=0b%b=0x%x=0%o='%c'"
-formatEnd:
