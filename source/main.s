@@ -68,7 +68,7 @@ main:
 
 	bl UsbInitialise
 	mov r4,#0
-	mov r6,#0
+	mov r5,#0
 
 	loopKeyboard$:
 		bl KeyboardUpdate
@@ -78,16 +78,19 @@ main:
 		beq loopKeyboard$
 
 		mov r1,r4
-		mov r2,r6
+		mov r2,r5
 		bl DrawCharacter
 
 		add r4,r0
 		
+		/*
+		* Check on screen
+		*/
 		teq r4,#1024
-		addeq r6,r1
+		addeq r5,r1
 		moveq r4,#0
-
-		teq r6,#768
-		moveq r6,#0
+		
+		teqeq r5,#768
+		moveq r5,#0
 
 		bl loopKeyboard$

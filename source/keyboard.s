@@ -59,10 +59,10 @@ KeysShift:
 	.byte '\n', '1', '2', '3', '4', '5', '6', '7'
 	.byte '8', '9', '0', '.', '|', 0x0, 0x0, '='
 
+.section .text
 /*
 * Detects a keyboard and uses poll method to get current input
 */
-.section .text
 .globl KeyboardUpdate
 KeyboardUpdate:
 	push {r4,r5,lr}
@@ -160,35 +160,26 @@ KeyWasDown:
 */
 .globl KeyboardGetChar
 KeyboardGetChar:
-	push {r4}
-	/*
-	* Load keyboard address
-	*/
-	kbd .req r4
 	ldr r0,=KeyboardAddress
-	ldr kbd,[r0]
-
-	/*
-	* Check keyboard address is nonzero to check one is there
-	*/
-	teq kbd,#0
+	ldr r1,[r0]
+	teq r1,#0
 	moveq r0,#0
 	moveq pc,lr
 
-	push {r5,r6,lr}
+	push {r4,r5,r6,lr}
+	
+	kbd .req r4
+	key .req r6
 
-	/*
-	* r4 holds keyboard address and r6 holds index of key
-	*/
-	key .req r5
-	mov r4,r1
-	mov r6,#0
+	mov r4,r1	
+	mov r5,#0
+
 	keyLoop$:
 		/*
 		* Get key that is down
 		*/
 		mov r0,kbd
-		mov r1,r6
+		mov r1,r5
 		bl KeyboardGetKeyDown
 
 		/*
@@ -233,8 +224,8 @@ KeyboardGetChar:
 	* incremeting the index and checking if we've reached 6
 	*/
 	keyLoopContinue$:
-		add r6,#1
-		cmp r6,#6
+		add r5,#1
+		cmp r5,#6
 		blt keyLoop$
 
 	/*
